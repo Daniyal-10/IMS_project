@@ -1,5 +1,4 @@
 from django.db import models
-# from managers import *
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -29,6 +28,11 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
+ 
+class Role(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30)
+
 
 class CustomUser(AbstractUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
@@ -39,7 +43,7 @@ class CustomUser(AbstractUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
-    role = models.CharField(max_length=25, null=True)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, default="1")  
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -47,8 +51,56 @@ class CustomUser(AbstractUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.email
+        return self.email    
     
+# class Department(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     name = models.CharField(max_length=30)
 
+# class Designation(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     name = models.CharField(max_length=30)
+#     dep_id = models.ForeignKey(Department,on_delete=models.CASCADE)    
+
+# class Employee(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     designation_id = models.ForeignKey(Designation, on_delete=models.CASCADE)
+#     job_title = models.CharField(max_length=30)
+#     phone_no = models.CharField(max_length=10)
+#     user_id  = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
+# class Department_poc(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     department_id = models.ForeignKey(Department, on_delete=models.CASCADE)
+#     employee_id = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
+# class Stake_holder(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     
+# class Incident_type(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     name  =models.CharField(max_length=40)
+#     department_id = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+# class Contributing_factor(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     name = models.CharField(max_length=100)
+
+# class Incident_Ticket(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     report_type = models.ForeignKey(Incident_type, on_delete=models.CASCADE)
+#     occurence_date = models.DateTimeField()
+#     location = models.CharField(max_length=100)
+#     risk_level = models.CharField(max_length=20,null=True)
+#     assigned_POC = models.ForeignKey(Department_poc, on_delete=models.CASCADE)
+#     department = models.ForeignKey(Department, on_delete=models.CASCADE)
+#     evidence = models.FileField(null=True)
+#     requestor_id = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
+
+# class Incident_factor(models.Model):
+#     factor_id = models.ForeignKey(Contributing_factor, on_delete=models.CASCADE)
+#     incident_id = models.ForeignKey(Incident_Ticket, on_delete=models.CASCADE)
+
 
