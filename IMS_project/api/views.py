@@ -20,12 +20,18 @@ def RoleView(request):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors)
-    elif request.method == "DELETE":
-        data = request.data
-        obj = Role.objects.get(id = data["id"])
-        obj.delete()
-        return Response({'messege' : 'role deleted'})
-    
+    if request.method == "DELETE":
+        obj_id = request.data.get('id')
+        
+        if not obj_id:
+            return Response({'message': 'ID is required for deletion'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            Role.objects.get(id=obj_id).delete()
+            return Response({'message': 'Role deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Role.DoesNotExist:
+            return Response({'message': 'Role not found'}, status=status.HTTP_404_NOT_FOUND)
+        
 @api_view(["GET","POST","DELETE"]) 
 def DepartmentView(request):
     if request.method == "GET":
@@ -39,11 +45,17 @@ def DepartmentView(request):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors)
-    elif request.method == "DELETE":
-        data = request.data
-        obj = Department.objects.get(id = data["id"])
-        obj.delete()
-        return Response({'messege' : 'Department deleted'})
+    if request.method == "DELETE":
+        obj_id = request.data.get('id')
+        
+        if not obj_id:
+            return Response({'message': 'ID is required for deletion'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            Department.objects.get(id=obj_id).delete()
+            return Response({'message': 'Department deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Department.DoesNotExist:
+            return Response({'message': 'Department not found'}, status=status.HTTP_404_NOT_FOUND)
     
 
 @api_view(["GET","POST","DELETE"]) 
