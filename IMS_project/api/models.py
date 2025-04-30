@@ -30,7 +30,7 @@ class CustomUserManager(BaseUserManager):
 
  
 class Role(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30)
 
 
@@ -54,11 +54,11 @@ class CustomUser(AbstractUser, PermissionsMixin):
         return self.email    
     
 class Department(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30)
 
 class Designation(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30)
     dep_id = models.ForeignKey(Department,on_delete=models.CASCADE)    
 
