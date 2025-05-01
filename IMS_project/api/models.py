@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.base_user import BaseUserManager
 
-# superuser dani@gmail.com   1234
+# superuser dan@gmail.com   1234
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password, **extrafields):
