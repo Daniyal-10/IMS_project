@@ -43,7 +43,7 @@ class CustomUser(AbstractUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE, default="1")  
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)  
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -67,7 +67,7 @@ class Employee(models.Model):
     designation_id = models.ForeignKey(Designation, on_delete=models.CASCADE)
     job_title = models.CharField(max_length=30)
     phone_no = models.CharField(max_length=10)
-    user_id  = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user  = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
 class Department_poc(models.Model):
     id = models.AutoField(primary_key=True)

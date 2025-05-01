@@ -38,7 +38,7 @@ def DepartmentView(request):
         obj = Department.objects.all()
         serializer = DepartmentSerializer(obj , many = True)
         return Response(serializer.data)
-    elif request.method == "POST":
+    if request.method == "POST":
         data = request.data
         serializer = DepartmentSerializer(data = data)
         if serializer.is_valid():
@@ -91,5 +91,68 @@ def CustomUserView(request):
         obj = CustomUser.objects.all()
         serializer = CustomUserSerializer(obj, many=True)
         return Response(serializer.data)
-    # elif request.method =="POST":
+    
+
+    elif request.method =="POST":              #IMP stepss [making single view for user and employee creation]
+        data = request.data
+        serializer_u = CustomUserSerializer(data = data)
+
+        #User creation to get the user id to pass in the employee
+        if serializer_u.is_valid():
+            role = Role.objects.get(id=data["role"])
+        
+            user = CustomUser.objects.create(
+                first_name=data["first_name"],
+                last_name=data["last_name"],
+                email=data["email"],
+                role=role)
+            user.set_password(data["password"])
+            user.save()
+
+            # Now creating employee as saved user and got the user id
+            employee_data = {
+                "designation_id": data["designation_id"],
+                "job_title": data["job_title"],
+                "phone_no": data["phone_no"],
+                "user": user.id  # This will map to 'user_id'
+            }
+
+            serializer_e = EmployeeSerializer(data = employee_data)
+            if serializer_e.is_valid():
+                serializer_e.save()
+                response_data = {
+                        "user":CustomUserSerializer(user).data,
+                        "employee":serializer_e.data
+                }
+                return Response(response_data, status=status.HTTP_201_CREATED)
+    
+            else:
+                user.delete()
+                return Response({"employee_errors": serializer_e.errors}, status=status.HTTP_400_BAD_REQUEST)
+            
+        return Response({"user_errors": serializer_u.errors}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+    if request.method == "DELETE":
+        obj_id = request.data.get('id')
+        
+        if not obj_id:
+            return Response({'message': 'ID is required for deletion'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            CustomUser.objects.get(id=obj_id).delete()
+            return Response({'message': 'User deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except CustomUser.DoesNotExist:
+            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+            # obj = CustomUser.objects.all()
+            # serializer = CustomUserSerializer(obj, many=True)
+            # serialized_data = serializer.data 
+            # user_count = serialized_data
+            # return Response(serializer.data)
+
+
 
