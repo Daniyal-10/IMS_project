@@ -85,7 +85,7 @@ def DesignationView(request):
 
 
 
-@api_view(["GET", "POST", "DELETE"])
+@api_view(["GET", "POST", "PATCH", "DELETE"])
 def CustomUserView(request):
     if request.method == "GET":
         obj = CustomUser.objects.all()
@@ -93,7 +93,7 @@ def CustomUserView(request):
         return Response(serializer.data)
     
 
-    elif request.method =="POST":              #IMP stepss [making single view for user and employee creation]
+    if request.method =="POST":              #IMP stepss [making single view for user and employee creation]
         data = request.data
         serializer_u = CustomUserSerializer(data = data)
 
@@ -132,8 +132,15 @@ def CustomUserView(request):
             
         return Response({"user_errors": serializer_u.errors}, status=status.HTTP_400_BAD_REQUEST)
     
-
-
+    if request.method == "PATCH":
+        data = request.data
+        obj = CustomUser.objects.get(id = data["id"])
+        serializer = CustomUserSerializer(obj, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors).render.acceptres
+    
     if request.method == "DELETE":
         obj_id = request.data.get('id')
         
@@ -147,12 +154,24 @@ def CustomUserView(request):
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(["GET", "PATCH"])
+def EmployeeView(request):
+    if request.method == "GET":
+        obj = Employee.objects.all()
+        serializer = EmployeeSerializer(obj, many=True)
+        return Response(serializer.data)
+    
+    if request.method == "PATCH":
+        data = request.data
+        obj = Employee.objects.get(id = data["id"])
+        serializer = EmployeeSerializer(obj, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
 
-            # obj = CustomUser.objects.all()
-            # serializer = CustomUserSerializer(obj, many=True)
-            # serialized_data = serializer.data 
-            # user_count = serialized_data
-            # return Response(serializer.data)
+
+
 
 
 
