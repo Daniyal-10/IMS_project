@@ -169,9 +169,128 @@ def EmployeeView(request):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors)
+    
+
+@api_view(["GET","POST","PATCH","DELETE"])  
+def DepartmentPOCView(request): 
+    if request.method == "GET":
+        obj = Department_poc.objects.all()
+        serializer = Department_pocSerializer(obj, many=True)
+        return Response(serializer.data)
+    
+    if request.method == "POST":
+        data = request.data
+        serializer = Department_pocSerializer(data = data)
+
+        if serializer.is_valid():
+            department_id = Department.objects.get(id = data["department_id"]) 
+            employee_id = Employee.objects.get(id = data["employee_id"])
+            department_poc = Department_poc.objects.create(department_id = department_id,
+                                                           employee_id = employee_id
+                                                        )
+            department_poc.save()
+            return Response(Department_pocSerializer(department_poc).data ,status=status.HTTP_201_CREATED)
+        return Response(serializer.errors)
+    
+    if request.method == "PATCH":
+        data = request.data
+        obj = Department_poc.objects.get(id = data["id"])
+        serializer = Department_pocSerializer(obj, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+    
+    if request.method == "DELETE":
+        obj_id = request.data.get('id')
+        
+        if not obj_id:
+            return Response({'message': 'ID is required for deletion'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            Department_poc.objects.get(id=obj_id).delete()
+            return Response({'message': 'Department_poc deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Department_poc.DoesNotExist:
+            return Response({'message': 'Department_poc not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            
 
 
+@api_view(["GET","POST","PATCH","DELETE"])  
+def Incident_typeView(request):
+    if request.method == "GET":
+        obj = Incident_type.objects.all()
+        serializer = Incident_typeSerializer(obj, many=True)
+        return Response(serializer.data)
+    
+    if request.method == "POST":
+        data = request.data
+        serializer = Incident_typeSerializer(data=data)
+
+        if serializer.is_valid():
+            department_id = Department.objects.get(id = data["department_id"])
+
+            incident_type = Incident_type.objects.create(name = data["name"],
+                                                         department_id= department_id)
+            incident_type.save()
+            return Response(Incident_typeSerializer(incident_type).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors)
+    
+    if request.method == "PATCH":
+        data = request.data
+        obj = Incident_type.objects.get(id = data["id"])
+        serializer = Incident_typeSerializer(obj, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+    
+    if request.method == "DELETE":
+        obj_id = request.data.get('id')
+        
+        if not obj_id:
+            return Response({'message': 'ID is required for deletion'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            Incident_type.objects.get(id=obj_id).delete()
+            return Response({'message': 'Incident_type deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Incident_type.DoesNotExist:
+            return Response({'message': 'Incident_type not found'}, status=status.HTTP_404_NOT_FOUND)
+        
 
 
+@api_view(["GET","POST","PATCH","DELETE"])  
+def Contributing_factorsView(request):
+    if request.method == "GET":
+        obj = Contributing_factor.objects.all()
+        serializer = Contributing_factorsSerializer(obj, many=True)
+        return Response(serializer.data)  
 
+    if request.method == "POST":
+        data = request.data
+        serializer = Contributing_factorsSerializer(data=data)  
+        if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+        return Response(serializer.errors) 
 
+    if request.method == "PATCH":
+        data = request.data
+        obj = Contributing_factor.objects.get(id = data["id"])
+        serializer = Contributing_factor(obj, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)  
+
+    if request.method == "DELETE":
+        obj_id = request.data.get('id')
+        
+        if not obj_id:
+            return Response({'message': 'ID is required for deletion'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            Contributing_factor.objects.get(id=obj_id).delete()
+            return Response({'message': 'Contributing_factor deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Contributing_factor.DoesNotExist:
+            return Response({'message': 'Contributing_factor not found'}, status=status.HTTP_404_NOT_FOUND) 

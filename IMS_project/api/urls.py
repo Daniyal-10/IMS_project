@@ -6,5 +6,9 @@ urlpatterns = [
     path('role/', RoleView),
     path('department/', DepartmentView),
     path('designation/', DesignationView ),
-    path('customuser/', CustomUserView)
+    path('customuser/', CustomUserView),
+    path('employee/', EmployeeView),
+    path('departmentpoc/', DepartmentPOCView),
+    path('incidenttype/', Incident_typeView),
+    path('contributingfactors/', Contributing_factorsView)
 ]
