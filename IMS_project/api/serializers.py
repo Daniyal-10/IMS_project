@@ -42,3 +42,8 @@ class Contributing_factorsSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Contributing_factor
         fields = "__all__"
+
+class Incident_ticketSerilizer(serializers.ModelSerializer):
+    class Meta: 
+        model = Incident_Ticket
+        fields = "__all__"        

@@ -294,3 +294,18 @@ def Contributing_factorsView(request):
             return Response({'message': 'Contributing_factor deleted'}, status=status.HTTP_204_NO_CONTENT)
         except Contributing_factor.DoesNotExist:
             return Response({'message': 'Contributing_factor not found'}, status=status.HTTP_404_NOT_FOUND) 
+        
+
+
+@api_view(["GET","POST","PATCH","DELETE"])
+def Incident_ticketView(request):
+    if request.method == "GET":
+        obj = Incident_Ticket.objects.all()
+        serializer = Incident_ticketSerilizer(obj, many=True)
+        return Response(serializer.data)
+    
+    if request.method == "POST":
+        data = request.data
+        serializer = Incident_ticketSerilizer(data = data)
+
+        
