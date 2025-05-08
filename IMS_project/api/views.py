@@ -4,6 +4,8 @@ from .models import *
 from .serializers import *
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.mail import send_mail
+import random
 
 # Create your views here.
 
@@ -322,10 +324,102 @@ def Incident_ticketView(request):
                                                              evidence= data["evidence"],
                                                              requester_id = requester_id)
             return Response(Incident_ticketSerilizer(incident_ticket).data)
-        
         return Response(serializer.errors)
-
+    
+    if request.method == "PATCH":
+        data = request.data
+        obj = Incident_Ticket.objects.get(id = data["id"])
+        serializer = Incident_ticketSerilizer(obj, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+    
+    if request.method == "DELETE":
+        obj_id = request.data.get('id')
         
+        if not obj_id:
+            return Response({'message': 'ID is required for deletion'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            Incident_Ticket.objects.get(id=obj_id).delete()
+            return Response({'message': 'Incident_Ticket deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Incident_Ticket.DoesNotExist:
+            return Response({'message': 'Incident_Ticket not found'}, status=status.HTTP_404_NOT_FOUND) 
+    # payload for the response
+# {"report_type":"",
+# "occurence_data":"",
+# "location": "",
+# "assigned_poc" : "",
+# "department" : "",
+# "evidence": " " ,
+# "requestor_id":  ""
+# }
+
+
+
+
+@api_view(["POST"])
+def send_test_email(request):
+    email = request.data.get("email")
+
+    if not email:
+        return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    subject = "Test Email from DRF"
+    message = "This is a test email sent using @api_view."
+    from_email = "workwithdaniyall@gmail.com"  
+
+    try:
+        send_mail(subject, message, from_email, [email], fail_silently=False)
+        return Response({"message": "Email sent successfully"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+from django.core.cache import cache  
+
+@api_view(["POST"])
+def email_otp(request):
+    email = request.data.get("email")
+
+    if not email:
+        return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = CustomUser.objects.get(email=email)
+    except CustomUser.DoesNotExist:
+        return Response({"error": "User with this email does not exist"}, status=status.HTTP_404_NOT_FOUND)    
+
+    otp = str(random.randint(100000,999999))
+    cache.set(email, otp, timeout=300)
+
+    send_mail(
+        subject="Your OTP code",
+        message=f"Your OTP code is {otp}.",
+        from_email="workwithdaniyall@gmail.com",
+        recipient_list=[email],
+        fail_silently=False
+    )
+
+    return Response({"message": "OTP send to email successfully"}, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def verify_otp(request):
+    email = request.data.get("email")
+    otp_input = request.data.get("otp")
+
+    if not email or not otp_input:
+        return Response({"error": "email and otp are required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    otp_stored = cache.get(email)
+
+    if otp_stored == otp_input:
+        cache.delete(email)
+        return Response({"messege" : "OTP verified successfully"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error : Invalid or expired OTP."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
