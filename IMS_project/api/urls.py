@@ -10,5 +10,6 @@ urlpatterns = [
     path('employee/', EmployeeView),
     path('departmentpoc/', DepartmentPOCView),
     path('incidenttype/', Incident_typeView),
-    path('contributingfactors/', Contributing_factorsView)
+    path('contributingfactors/', Contributing_factorsView),
+    path('incidentticket/', Incident_ticketView)
 ]

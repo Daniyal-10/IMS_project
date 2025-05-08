@@ -308,4 +308,26 @@ def Incident_ticketView(request):
         data = request.data
         serializer = Incident_ticketSerilizer(data = data)
 
+        if serializer.is_valid():
+            report_type = Incident_type.objects.get(id = data["incident_type"])
+            assigned_poc = Department_poc.objects.get(id = data["assigned_poc"])
+            department = Department.objects.get(id = data["department"])
+            requester_id = Employee.objects.get(id = data["requester_id"])
+
+            incident_ticket = Incident_Ticket.objects.create(report_type = report_type,
+                                                             occurence_date = data["occurence_date"],
+                                                             loction = data["location"],
+                                                             assigned_poc = assigned_poc,
+                                                             department = department,
+                                                             evidence= data["evidence"],
+                                                             requester_id = requester_id)
+            return Response(Incident_ticketSerilizer(incident_ticket).data)
         
+        return Response(serializer.errors)
+
+        
+
+
+
+
+

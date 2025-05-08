@@ -102,5 +102,3 @@ class Incident_Ticket(models.Model):
 class Incident_factor(models.Model):
     factor_id = models.ForeignKey(Contributing_factor, on_delete=models.CASCADE)
     incident_id = models.ForeignKey(Incident_Ticket, on_delete=models.CASCADE)
-
-
