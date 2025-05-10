@@ -346,6 +346,7 @@ def Incident_ticketView(request):
             return Response({'message': 'Incident_Ticket deleted'}, status=status.HTTP_204_NO_CONTENT)
         except Incident_Ticket.DoesNotExist:
             return Response({'message': 'Incident_Ticket not found'}, status=status.HTTP_404_NOT_FOUND) 
+        
     # payload for the response
 # {"report_type":"",
 # "occurence_data":"",
@@ -417,11 +418,56 @@ def verify_otp(request):
 
     if otp_stored == otp_input:
         cache.delete(email)
-        return Response({"messege" : "OTP verified successfully"}, status=status.HTTP_200_OK)
+        return Response({"message" : "OTP verified successfully"}, status=status.HTTP_200_OK)
     else:
-        return Response({"error : Invalid or expired OTP."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error" : "Invalid or expired OTP."}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+#***********************************************************************************************************************    
+#                                                FORGET PASSWORD VERIFICATION
+@api_view(["POST"])
+def request_reset_password(request):
+    email = request.data.get("email")
+
+    if not email:
+        return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        user = CustomUser.objects.get(email=email)
+    except CustomUser.DoesNotExist:
+        return Response({"error": "User with this email does not exist"}, status=status.HTTP_404_NOT_FOUND)
+    
+    otp = str(random.randint(100000,999999))
+
+    cache.set(f"reset_otp_{email}",otp, timeout=300)
+
+    send_mail(
+        subject="Password reset OTP",
+        message=f"Your OTP for Password reset is: {otp}.",
+        from_email= "workwithdaniyall@gmail.com",
+        recipient_list=[email],
+        fail_silently=False
+    )
+     
+    return Response({"message": "OTP sent to your email for password reset"}, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def otp_verification(request):
+    email = request.data.get("email")
+    otp_input = request.data.get("otp")
+
+    if not email or not  otp_input:
+        return Response({"error": "email and otp are required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    otp_stored = cache.get(f"reset_otp_{email}")
+
+    if otp_stored == otp_input:
+        cache.set(f"otp_verified_email", True, timeout=600)
+        return Response({"message":"OTP verified. You may now reset your password"})
+    else:
+        return Response({"error":"Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
 
-
+#***********************************************************************************************************************
