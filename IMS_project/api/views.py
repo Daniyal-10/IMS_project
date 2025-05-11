@@ -468,6 +468,29 @@ def otp_verification(request):
         return Response({"error":"Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(["POST"])
+def reset_password(request):
+    email = request.data.get("email")
+    new_password = request.data.get("new_password")
+
+    if not email or not new_password:
+        return Response({"error":"Email and new password are required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    otp_verified = cache.get(f"otp_verified_{email}")
+    if not otp_verified:
+        return Response({"error":"Otp verification required"}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        user=CustomUser.objects.get(email=email)
+        user.set_password(new_password)
+        user.save()
+        cache.delete(f"otp_verified_{email}")
+        return Response({"message":"Password reset successful"}, status=status.HTTP_200_OK)
+    except CustomUser.DoesNotExist:
+        return Response({"error":"User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+
+
 
 
 #***********************************************************************************************************************
