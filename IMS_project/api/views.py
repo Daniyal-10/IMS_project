@@ -495,3 +495,37 @@ def reset_password(request):
 
 
 #***********************************************************************************************************************
+
+#                                             Login / Logout API
+from rest_framework.views import APIView
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate , login, logout
+
+class LoginAPIView(APIView):
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        if not email or not password:
+            return Response({"error":"Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = authenticate(email=email, password=password)
+
+        if user is None:
+            raise AuthenticationFailed("Invalid email or password.")
+        
+        if not user.is_active:
+            raise AuthenticationFailed("This account is inactive.")
+    
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "refresh":str(refresh),
+            "access":str(refresh.access_token),
+        })
+    
+@api_view(["POST"])
+def signout(request):
+    logout(request)
+    return Response({"message":"User logged out successfully"}, status=status.HTTP_200_OK)
