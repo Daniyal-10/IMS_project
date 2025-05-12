@@ -172,6 +172,32 @@ def EmployeeView(request):
             return Response(serializer.data)
         return Response(serializer.errors)
     
+@api_view(["GET"])
+def employee_v(request):
+    objects=Employee.objects.all()
+    ser=EmployeeSerializer(objects, many=True)
+    print(ser.data)
+    print("\n"*3)
+    data=[]
+    for d in ser.data:
+        response={}
+        response["id"]=d["id"]
+        response["job_title"]=d["job_title"]
+        response["phone_no"]=d["id"]
+        response["first_name"]=d["user_id"]["first_name"]
+        response["email"]=d["user_id"]["email"]
+        print(d)
+        data.append(response)
+        print("\n"*3)
+    return Response(data)    
+
+@api_view(["GET"])
+def employee_v2(request):
+    objects=Employee.objects.all()
+    ser=EmployeeProfile(objects, many=True)
+
+    return Response(ser.data)
+    
 
 @api_view(["GET","POST","PATCH","DELETE"])  
 def DepartmentPOCView(request): 
@@ -529,3 +555,5 @@ class LoginAPIView(APIView):
 def signout(request):
     logout(request)
     return Response({"message":"User logged out successfully"}, status=status.HTTP_200_OK)
+
+#***********************************************************************************************************************
