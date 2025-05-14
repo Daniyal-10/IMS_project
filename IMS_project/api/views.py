@@ -178,15 +178,16 @@ def employee_v(request):
     ser=EmployeeSerializer(objects, many=True)
     print(ser.data)
     print("\n"*3)
-    data=[]
+    data = []
     for d in ser.data:
-        response={}
-        response["id"]=d["id"]
-        response["job_title"]=d["job_title"]
-        response["phone_no"]=d["id"]
-        response["first_name"]=d["user_id"]["first_name"]
-        response["email"]=d["user_id"]["email"]
-        print(d)
+        user = d["user"]
+        response = {
+            "id": d["id"],
+            "job_title": d["job_title"],
+            "phone_no": d["phone_no"],  
+            "first_name": user["first_name"],
+            "email": user["email"],
+        }
         data.append(response)
         print("\n"*3)
     return Response(data)    

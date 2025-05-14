@@ -27,7 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields="__all__"        
 
 class EmployeeSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
+    user = UserSerializer(read_only = True)
     
     class Meta: 
         model = Employee
@@ -35,10 +35,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 # Employee view with the user data also with the specific fields
 class EmployeeProfile(serializers.ModelSerializer):
-    Firstname = serializers.CharField(source = "user_id.first_name")
-    Lastname = serializers.CharField(source = "user_id.last_name")
-    Email = serializers.CharField(source = "user_id.email")
+    Firstname = serializers.CharField(source = "user.first_name")
+    Lastname = serializers.CharField(source = "user.last_name")
+    Email = serializers.CharField(source = "user.email")
     Department = serializers.CharField(source = "designation_id.dep_id.name")
+
     class Meta:
         model = Employee
         fields = ['job_title','id','designation_id','phone_no','Firstname', 'Lastname', 'Email', 'Department']

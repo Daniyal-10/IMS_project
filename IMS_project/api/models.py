@@ -63,11 +63,12 @@ class Designation(models.Model):
     dep_id = models.ForeignKey(Department,on_delete=models.CASCADE)    
 
 class Employee(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="employee")
     id = models.AutoField(primary_key=True)
     designation_id = models.ForeignKey(Designation, on_delete=models.CASCADE)
     job_title = models.CharField(max_length=30)
     phone_no = models.CharField(max_length=10)
-    user  = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+   
 
 class Department_poc(models.Model):
     id = models.AutoField(primary_key=True)
@@ -90,7 +91,7 @@ class Contributing_factor(models.Model):
 class Incident_Ticket(models.Model):
     id = models.AutoField(primary_key=True)
     report_type = models.ForeignKey(Incident_type, on_delete=models.CASCADE)
-    occurence_date = models.DateTimeField()
+    occurence_date = models.DateTimeField(auto_now=True)
     location = models.CharField(max_length=100)
     risk_level = models.CharField(max_length=20,null=True)
     assigned_POC = models.ForeignKey(Department_poc, on_delete=models.CASCADE)
