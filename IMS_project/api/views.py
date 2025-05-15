@@ -339,32 +339,29 @@ def Incident_ticketView(request):
 
         if serializer.is_valid():
             report_type = Incident_type.objects.get(id = data["report_type"])
-
-#            ********** Assigning poc via department
-            objects = Department.objects.all()
-            ser = DepartmentSerializer(objects, many=True)
-            response = ser.data
-            for obj, res in zip(objects, response):
-                poc = obj.department_pocc.all()
-                assigned_poc = poc.first()
-                depSer= Department_pocSerializer(poc , many=True)
-                print(list(map(lambda x:x["id"] ,depSer.data)))
-                res["department_pocc"]=list(map(lambda x:x["id"] ,depSer.data ))
-                # return Response(ser.data)
-#            **********
-
             department = Department.objects.get(id = data["department"])
             requestor_id = Employee.objects.get(id = data["requestor_id"])
 
-            incident_ticket = Incident_Ticket.objects.create(report_type = report_type,
-                                                             location = data["location"],
-                                                            #  assigned_poc = assigned_poc,
-                                                             department = department,
-                                                            #  evidence= data["evidence"],
-                                                             requestor_id = requestor_id)
-            return Response(Incident_ticketSerilizer(incident_ticket).data)
-        return Response(serializer.errors)
-    
+            pocs = department.department_pocc.all()
+            assigned_poc = pocs.first() if pocs.exists() else None
+
+            incident_ticket = Incident_Ticket.objects.create(
+                report_type=report_type,
+                location=data["location"],
+                department=department,
+                requestor_id=requestor_id,
+                assigned_POC=assigned_poc,  
+                # evidence=data.get("evidence"),  
+            )
+            factor_ids = data.get("contributing_factors", [])
+            factors = Contributing_factor.objects.filter(id__in=factor_ids)
+            incident_ticket.contributing_factors.set(factors)
+            serializer.save()
+            
+            return Response(Incident_ticketSerilizer(incident_ticket).data, status=201)
+
+        return Response(serializer.errors, status=400)
+
     if request.method == "PATCH":
         data = request.data
         obj = Incident_Ticket.objects.get(id = data["id"])
@@ -388,12 +385,11 @@ def Incident_ticketView(request):
         
     # payload for the response
 # {"report_type":"",
-# "occurence_data":"",
 # "location": "",   
-# "assigned_poc" : "",
 # "department" : "",
 # "evidence": " " ,
-# "requestor_id":  ""
+# "requestor_id":  "",
+# "contributing_factors": [],
 # }
 
 
