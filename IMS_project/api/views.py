@@ -356,7 +356,6 @@ def Incident_ticketView(request):
             factor_ids = data.get("contributing_factors", [])
             factors = Contributing_factor.objects.filter(id__in=factor_ids)
             incident_ticket.contributing_factors.set(factors)
-            serializer.save()
             
             return Response(Incident_ticketSerilizer(incident_ticket).data, status=201)
 
