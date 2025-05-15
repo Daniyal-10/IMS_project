@@ -72,7 +72,7 @@ class Employee(models.Model):
 
 class Department_poc(models.Model):
     id = models.AutoField(primary_key=True)
-    department_id = models.ForeignKey(Department, on_delete=models.CASCADE)
+    department_id = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="department_pocc")
     employee_id = models.ForeignKey(Employee, on_delete=models.CASCADE)
 
 class Stake_holder(models.Model):
@@ -94,12 +94,12 @@ class Incident_Ticket(models.Model):
     occurence_date = models.DateTimeField(auto_now=True)
     location = models.CharField(max_length=100)
     risk_level = models.CharField(max_length=20,null=True)
-    assigned_POC = models.ForeignKey(Department_poc, on_delete=models.CASCADE)
+    assigned_POC = models.ForeignKey(Department_poc, on_delete=models.CASCADE, null=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     evidence = models.FileField(null=True)
     requestor_id = models.ForeignKey(Employee, on_delete=models.CASCADE)
-
-
+    contributing_factors = models.ManyToManyField(Contributing_factor , through="Incident_factor")
+ 
 class Incident_factor(models.Model):
     factor_id = models.ForeignKey(Contributing_factor, on_delete=models.CASCADE)
     incident_id = models.ForeignKey(Incident_Ticket, on_delete=models.CASCADE)

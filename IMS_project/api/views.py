@@ -338,18 +338,30 @@ def Incident_ticketView(request):
         serializer = Incident_ticketSerilizer(data = data)
 
         if serializer.is_valid():
-            report_type = Incident_type.objects.get(id = data["incident_type"])
-            assigned_poc = Department_poc.objects.get(id = data["assigned_poc"])
+            report_type = Incident_type.objects.get(id = data["report_type"])
+
+#            ********** Assigning poc via department
+            objects = Department.objects.all()
+            ser = DepartmentSerializer(objects, many=True)
+            response = ser.data
+            for obj, res in zip(objects, response):
+                poc = obj.department_pocc.all()
+                assigned_poc = poc.first()
+                depSer= Department_pocSerializer(poc , many=True)
+                print(list(map(lambda x:x["id"] ,depSer.data)))
+                res["department_pocc"]=list(map(lambda x:x["id"] ,depSer.data ))
+                # return Response(ser.data)
+#            **********
+
             department = Department.objects.get(id = data["department"])
-            requester_id = Employee.objects.get(id = data["requester_id"])
+            requestor_id = Employee.objects.get(id = data["requestor_id"])
 
             incident_ticket = Incident_Ticket.objects.create(report_type = report_type,
-                                                             occurence_date = data["occurence_date"],
-                                                             loction = data["location"],
-                                                             assigned_poc = assigned_poc,
+                                                             location = data["location"],
+                                                            #  assigned_poc = assigned_poc,
                                                              department = department,
-                                                             evidence= data["evidence"],
-                                                             requester_id = requester_id)
+                                                            #  evidence= data["evidence"],
+                                                             requestor_id = requestor_id)
             return Response(Incident_ticketSerilizer(incident_ticket).data)
         return Response(serializer.errors)
     
@@ -377,7 +389,7 @@ def Incident_ticketView(request):
     # payload for the response
 # {"report_type":"",
 # "occurence_data":"",
-# "location": "",
+# "location": "",   
 # "assigned_poc" : "",
 # "department" : "",
 # "evidence": " " ,

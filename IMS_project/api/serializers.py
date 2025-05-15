@@ -42,7 +42,7 @@ class EmployeeProfile(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ['job_title','id','designation_id','phone_no','Firstname', 'Lastname', 'Email', 'Department']
+        fields = ['id','Firstname', 'Lastname','designation_id','Department','job_title','phone_no', 'Email']
 
 class Department_pocSerializer(serializers.ModelSerializer):
     class Meta: 
