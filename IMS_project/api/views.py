@@ -392,8 +392,6 @@ def Incident_ticketView(request):
 # }
 
 
-
-
 @api_view(["POST"])
 def send_test_email(request):
     email = request.data.get("email")
