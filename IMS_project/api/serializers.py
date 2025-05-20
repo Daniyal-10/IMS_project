@@ -59,7 +59,46 @@ class Contributing_factorsSerializer(serializers.ModelSerializer):
         model = Contributing_factor
         fields = "__all__"
 
-class Incident_ticketSerilizer(serializers.ModelSerializer):
-    class Meta: 
+
+class IncidentTicketSerializer(serializers.ModelSerializer):
+    Reporter = serializers.SerializerMethodField()
+    Department = DepartmentSerializer(source='department', read_only=True)
+    Report_Type = serializers.CharField(source='report_type.name', read_only=True)
+    Occurance_date = serializers.DateTimeField(source='occurence_date', read_only=True)
+    AssignedPOC = serializers.SerializerMethodField()
+    ContributingFactors = serializers.SerializerMethodField()
+
+    class Meta:
         model = Incident_Ticket
-        fields = "__all__"        
+        fields = [
+            'id',
+            'Reporter',
+            'Report_Type',
+            'Department',
+            'Occurance_date',
+            'location',
+            'AssignedPOC',
+            'ContributingFactors'
+        ]
+
+    def get_Reporter(self, obj):
+        emp = obj.requestor_id
+        full_name = f"{emp.user.first_name} {emp.user.last_name}"
+        designation = emp.designation_id.name if emp.designation_id else ""
+        return {
+            "Name": full_name,
+            "Designation": designation
+        }
+
+    def get_AssignedPOC(self, obj):
+        if obj.assigned_POC and obj.assigned_POC.employee_id:
+            poc_user = obj.assigned_POC.employee_id.user
+            return {
+                "Name": f"{poc_user.first_name} {poc_user.last_name}"
+            }
+        return None
+
+    def get_ContributingFactors(self, obj):
+        return [factor.name for factor in obj.contributing_factors.all()]
+       
+

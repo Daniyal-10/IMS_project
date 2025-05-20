@@ -330,12 +330,12 @@ def Contributing_factorsView(request):
 def Incident_ticketView(request):
     if request.method == "GET":
         obj = Incident_Ticket.objects.all()
-        serializer = Incident_ticketSerilizer(obj, many=True)
+        serializer = IncidentTicketSerializer(obj, many=True)
         return Response(serializer.data)
     
     if request.method == "POST":
         data = request.data
-        serializer = Incident_ticketSerilizer(data = data)
+        serializer = IncidentTicketSerializer(data = data)
 
         if serializer.is_valid():
             report_type = Incident_type.objects.get(id = data["report_type"])
@@ -357,14 +357,14 @@ def Incident_ticketView(request):
             factors = Contributing_factor.objects.filter(id__in=factor_ids)
             incident_ticket.contributing_factors.set(factors)
             
-            return Response(Incident_ticketSerilizer(incident_ticket).data, status=201)
+            return Response(IncidentTicketSerializer(incident_ticket).data, status=201)
 
         return Response(serializer.errors, status=400)
 
     if request.method == "PATCH":
         data = request.data
         obj = Incident_Ticket.objects.get(id = data["id"])
-        serializer = Incident_ticketSerilizer(obj, data=data, partial=True)
+        serializer = IncidentTicketSerializer(obj, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
