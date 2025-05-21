@@ -324,18 +324,23 @@ def Contributing_factorsView(request):
         except Contributing_factor.DoesNotExist:
             return Response({'message': 'Contributing_factor not found'}, status=status.HTTP_404_NOT_FOUND) 
         
-
+@api_view(["GET"])
+def IncidentTicketDetails(request):
+    if request.method == "GET":
+        obj = Incident_Ticket.objects.all()
+        serializer = IncidentSerializer2(obj, many=True)
+        return Response(serializer.data)
 
 @api_view(["GET","POST","PATCH","DELETE"])
 def Incident_ticketView(request):
     if request.method == "GET":
         obj = Incident_Ticket.objects.all()
-        serializer = IncidentTicketSerializer(obj, many=True)
+        serializer = IncidentTicketSerializer1(obj, many=True)
         return Response(serializer.data)
     
     if request.method == "POST":
         data = request.data
-        serializer = IncidentTicketSerializer(data = data)
+        serializer = IncidentTicketSerializer1(data = data)
 
         if serializer.is_valid():
             report_type = Incident_type.objects.get(id = data["report_type"])
@@ -357,14 +362,14 @@ def Incident_ticketView(request):
             factors = Contributing_factor.objects.filter(id__in=factor_ids)
             incident_ticket.contributing_factors.set(factors)
             
-            return Response(IncidentTicketSerializer(incident_ticket).data, status=201)
+            return Response(IncidentTicketSerializer1(incident_ticket).data, status=201)
 
         return Response(serializer.errors, status=400)
 
     if request.method == "PATCH":
         data = request.data
         obj = Incident_Ticket.objects.get(id = data["id"])
-        serializer = IncidentTicketSerializer(obj, data=data, partial=True)
+        serializer = IncidentTicketSerializer1(obj, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

@@ -60,7 +60,7 @@ class Contributing_factorsSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class IncidentTicketSerializer(serializers.ModelSerializer):
+class IncidentTicketSerializer1(serializers.ModelSerializer):
     Reporter = serializers.SerializerMethodField()
     Department = DepartmentSerializer(source='department', read_only=True)
     Report_Type = serializers.CharField(source='report_type.name', read_only=True)
@@ -100,5 +100,44 @@ class IncidentTicketSerializer(serializers.ModelSerializer):
 
     def get_ContributingFactors(self, obj):
         return [factor.name for factor in obj.contributing_factors.all()]
+    
+
+class IncidentSerializer2(serializers.ModelSerializer):
+    class Meta:
+        model = Incident_Ticket
+        # fields = "__all__"
+        fields = [
+            'id',
+            'requestor_id',
+            'report_type',
+            'department',
+            'occurence_date',
+            'location',
+            'assigned_POC',
+            'contributing_factors'
+        ]
+    def to_representation(self, instance):
+
+        rep =  super().to_representation(instance)   #in this we get the initial data from the model
+
+        rep['Reportor'] = {
+            "Name":instance.requestor_id.user.full_name(),
+            "Designation": instance.requestor_id.designation_id.name,
+        }
+        rep['assigned_POC'] = instance.assigned_POC.employee_id.user.full_name()
+        rep['report_type'] = instance.report_type.name if instance.report_type else None
+
+        rep['contributing_factors'] = [factor.name for factor in instance.contributing_factors.all()]
+
+        rep['department'] = {
+            "id": instance.department.id,
+            "name": instance.department.name
+        } if instance.department else None
+
+        rep.pop('requestor_id', None)
+
+        return rep
+        
+
        
 

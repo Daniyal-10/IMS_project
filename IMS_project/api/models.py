@@ -50,6 +50,9 @@ class CustomUser(AbstractUser, PermissionsMixin):
 
     objects = CustomUserManager()
 
+    def full_name(self):
+        return f"{self.first_name}{self.last_name}"
+
     def __str__(self):
         return self.email    
     
@@ -90,6 +93,7 @@ class Contributing_factor(models.Model):
 
 class Incident_Ticket(models.Model):
     id = models.AutoField(primary_key=True)
+    requestor_id = models.ForeignKey(Employee, on_delete=models.CASCADE)
     report_type = models.ForeignKey(Incident_type, on_delete=models.CASCADE)
     occurence_date = models.DateTimeField(auto_now=True)
     location = models.CharField(max_length=100)
@@ -97,7 +101,7 @@ class Incident_Ticket(models.Model):
     assigned_POC = models.ForeignKey(Department_poc, on_delete=models.CASCADE, null=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     evidence = models.FileField(null=True)
-    requestor_id = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
     contributing_factors = models.ManyToManyField(Contributing_factor , through="Incident_factor")
  
 class Incident_factor(models.Model):
