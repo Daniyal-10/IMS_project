@@ -1,10 +1,17 @@
 # from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from .models import *
 from .serializers import *
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.mail import send_mail
+from rest_framework.views import APIView
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.contrib.auth import authenticate , login, logout
+from rest_framework.permissions import IsAuthenticated
+from django.core.cache import cache 
 import random
 
 # Create your views here.
@@ -330,8 +337,24 @@ def IncidentTicketDetails(request):
         obj = Incident_Ticket.objects.all()
         serializer = IncidentSerializer2(obj, many=True)
         return Response(serializer.data)
+    
+#******************** Permisson based access*********************************************************************
+
+from rest_framework.permissions import BasePermission
+
+class RoleBasedPermissions(BasePermission):
+    def has_permission(self, request, view):
+        if request.user.role == "employee" is request.method in ["POST","GET"]:
+            return True
+        if request.user.role == "assigned_POC" is request.method in ["POST","GET","PATCH"]:
+            return True
+        if request.user.role == "stake_holder" is request.method == "GET":
+            return True
+        return False
 
 @api_view(["GET","POST","PATCH","DELETE"])
+@permission_classes([RoleBasedPermissions,IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def Incident_ticketView(request):
     if request.method == "GET":
         obj = Incident_Ticket.objects.all()
@@ -415,7 +438,7 @@ def send_test_email(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
-from django.core.cache import cache  
+ 
 
 @api_view(["POST"])
 def email_otp(request):
@@ -533,12 +556,7 @@ def reset_password(request):
 
 #***********************************************************************************************************************
 
-#                                             Login / Logout API
-from rest_framework.views import APIView
-from rest_framework.exceptions import AuthenticationFailed
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate , login, logout
-
+#                                             Login / Logout AP
 class LoginAPIView(APIView):
     def post(self, request):
         email = request.data.get("email")
@@ -568,3 +586,42 @@ def signout(request):
     return Response({"message":"User logged out successfully"}, status=status.HTTP_200_OK)
 
 #***********************************************************************************************************************
+
+@api_view(["GET","POST","PATCH","DELETE"])
+def stake_holderView(request):
+    if request.method == "GET":
+        stake_holder = Stake_holder.objects.all()
+        serializer = StakeHolderSerializer(stake_holder, many=True)
+        return Response(serializer.data)
+    if request.method == "POST":
+        serializer = StakeHolderSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == "PATCH":
+        stake_holder = Stake_holder.objects.get(id=request.data['id'])
+        serializer = StakeHolderSerializer(stake_holder, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+        
+    if request.method == "DELETE":
+        obj_id = request.data.get('id')
+        
+        if not obj_id:
+            return Response({'message': 'ID is required for deletion'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            Stake_holder.objects.get(id=obj_id).delete()
+            return Response({'message': 'Stake_holder deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Stake_holder.DoesNotExist:
+            return Response({'message': 'Stake_holder not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(["GET","POST"])
+def FilterTicket(request,requestor_id):
+    if request.method == "GET":
+        ticket = Incident_Ticket.objects.filter(requestor_id=requestor_id)
+        ser = IncidentTikcetSerializer(ticket, many=True)
+        return Response(ser.data)

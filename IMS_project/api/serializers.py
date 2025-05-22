@@ -16,6 +16,11 @@ class DesignationSerializer(serializers.ModelSerializer):
         model = Designation
         fields = "__all__"
 
+class StakeHolderSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Stake_holder
+        fields = "__all__"
+
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -49,7 +54,7 @@ class Department_pocSerializer(serializers.ModelSerializer):
         model = Department_poc
         fields = "__all__"
 
-class Incident_typeSerializer(serializers.ModelSerializer):
+class Incident_typeSerializer(serializers.ModelSerializer): 
     class Meta: 
         model = Incident_type
         fields = "__all__"
@@ -59,6 +64,10 @@ class Contributing_factorsSerializer(serializers.ModelSerializer):
         model = Contributing_factor
         fields = "__all__"
 
+class IncidentTikcetSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Incident_Ticket
+        fields = "__all__"
 
 class IncidentTicketSerializer1(serializers.ModelSerializer):
     Reporter = serializers.SerializerMethodField()
