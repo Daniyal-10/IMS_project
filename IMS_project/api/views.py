@@ -334,8 +334,22 @@ def Contributing_factorsView(request):
 @api_view(["GET"])
 def IncidentTicketDetails(request):
     if request.method == "GET":
-        obj = Incident_Ticket.objects.all()
-        serializer = IncidentSerializer2(obj, many=True)
+        
+        report_type = request.GET.get('report_type')
+        department = request.GET.get('department')
+        requestor_id = request.GET.get('requestor_id')
+
+        ticket = Incident_Ticket.objects.all()
+
+        if report_type:
+            ticket=ticket.filter(report_type=report_type)
+        if department:
+            ticket=ticket.filter(department=department)
+        if requestor_id:
+            ticket=ticket.filter(requestor_id=requestor_id)
+            
+                    
+        serializer = IncidentSerializer2(ticket, many=True)
         return Response(serializer.data)
     
 #******************** Permisson based access*********************************************************************
@@ -625,3 +639,4 @@ def FilterTicket(request,requestor_id):
         ticket = Incident_Ticket.objects.filter(requestor_id=requestor_id)
         ser = IncidentTikcetSerializer(ticket, many=True)
         return Response(ser.data)
+    
