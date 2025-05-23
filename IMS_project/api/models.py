@@ -28,7 +28,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
- 
+
 class Role(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30)
