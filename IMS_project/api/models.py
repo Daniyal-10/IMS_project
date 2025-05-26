@@ -143,6 +143,7 @@ class Improvement_Recommendation(models.Model):
 class Follow_up_action(models.Model):
     id = models.AutoField(primary_key=True)
     action_taken = models.CharField(max_length=500)
+    date = models.DateTimeField()
     responsible_persons = models.ManyToManyField(Employee, db_table="Follow_up_taken_by")
     
 
