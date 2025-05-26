@@ -147,6 +147,14 @@ class Follow_up_action(models.Model):
     responsible_persons = models.ManyToManyField(Employee, db_table="Follow_up_taken_by")
     
 
+class Status(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=20)
+
+class status_time(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateTimeField(auto_now=True)
+
 ''' 
 class Incident_Ticket(models.Model):
     id = models.AutoField(primary_key=True)
@@ -158,13 +166,12 @@ class Incident_Ticket(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     evidence = models.FileField(null=True)
     contributing_factors = models.ManyToManyField(Contributing_factor , through="Incident_factor")
-    Individuals_invloved = models.ManyToManyField(Employee, db_table="Individuals_involved")
-    Witnesses = models.ManyToManyField(Employee, db_table="Witness")
-    Action_taken = models.ForeignKey(Action_taken, on_delete=models.CASCADE, null=True)
+    Individuals_invloved = models.ManyToManyField(Employee, db_table="Individuals_involved", null=True)
+    Witnesses = models.ManyToManyField(Employee, db_table="Witness",null=True) 
+    Action_taken = models.MantToManyField(Employee, through="Action_taken", null=True)
     Risk_assessment = models.ForeignKey(Risk_assessment, on_delete=models.CASCADE, null=True)
-    Improvement_recommendation = models.ForeignKey(Improvement_Recommendation,on_delete=models.CASCADE, null=True)
-    Follow_up = models.ForeignKey(follow_up_actionson_delete=models.CASCADE, null=True)
+    Improvement_recommendation = models.MantToManyField(Employee,through="Improvement_Recommendation", null=True)
+    Follow_up = models.MantToManyField(Employee,through="Follow_up_action", null=True)
+    status = models.ManyToManyField(Status, through = "status_time", null=True)
 
-
- 
 '''   
