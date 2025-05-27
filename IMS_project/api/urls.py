@@ -1,11 +1,15 @@
 from api.views import * 
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
+router = DefaultRouter()
+router.register(r'employeeview', EmployeeViewSet)
+router.register(r'incidentview', IncidentViewSet)
 
 urlpatterns = [
     path('role/', RoleView),
@@ -32,4 +36,6 @@ urlpatterns = [
     path('logout/', signout),
     path("emp1/", employee_v),
     path("emp2/", employee_v2),
-]
+    #********************ModelVIewSet****************
+    path('',include(router.urls)),
+]   

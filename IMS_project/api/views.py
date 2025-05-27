@@ -13,6 +13,7 @@ from django.contrib.auth import authenticate , login, logout
 from rest_framework.permissions import IsAuthenticated
 from django.core.cache import cache 
 import random
+from rest_framework import viewsets
 
 # Create your views here.
 
@@ -639,4 +640,18 @@ def FilterTicket(request,requestor_id):
         ticket = Incident_Ticket.objects.filter(requestor_id=requestor_id)
         ser = IncidentTikcetSerializer(ticket, many=True)
         return Response(ser.data)
+    
+
+
+
+# Making some view using ModelViewSet
+class EmployeeViewSet(viewsets.ModelViewSet):
+    queryset =  Employee.objects.all()
+    serializer_class = EmployeeProfile
+
+
+class IncidentViewSet(viewsets.ModelViewSet):
+    queryset = Incident_Ticket.objects.all()
+    serializer_class = IncidentTikcetSerializer
+    
     
